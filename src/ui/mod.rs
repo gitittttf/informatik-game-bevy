@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use crate::game_state::GameState;
-use std::time::Duration;
 
 pub mod main_menu;
 pub mod character_select;
@@ -43,7 +42,7 @@ pub fn plugin(app: &mut App) {
 // Generic cleanup system
 fn cleanup_menu<T: Component>(mut commands: Commands, query: Query<Entity, With<T>>) {
     for entity in query.iter() {
-        commands.entity(entity).despawn_recursive();
+        commands.entity(entity).despawn();
     }
 }
 

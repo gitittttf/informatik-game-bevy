@@ -29,6 +29,8 @@ pub fn plugin(app: &mut App) {
         .add_systems(OnEnter(GameState::Gameplay), setup_gameplay_hud)
         .add_systems(Update, (
             update_hp_bar,
+            update_room_info,
+            update_player_stats,
             update_combat_log,
             update_story_text_typewriter,
         ).run_if(in_state(GameState::Gameplay)))

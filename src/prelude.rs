@@ -18,7 +18,7 @@ pub use crate::combat::{
 pub use crate::world::{
     data::*,
     resources::*,
-    systems::*,
+    gameplay_systems::*,
 };
 
 // Re-export commonly used Bevy types

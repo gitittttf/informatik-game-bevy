@@ -8,12 +8,13 @@ use super::events::*;
 
 // System that starts a combat encounter
 pub fn start_combat_system(
-    mut commands: Commands,
     mut battle_state: ResMut<BattleState>,
     mut combat_start_events: MessageWriter<CombatStartEvent>,
-    // Query gets all entities with Player component + their other components
-    mut player_query: Query<(Entity, &mut Initiative), With<Player>>,
-    mut enemy_query: Query<(Entity, &mut Initiative), With<Enemy>>,
+    // Use ParamSet to avoid conflicts
+    mut queries: ParamSet<(
+        Query<(Entity, &mut Initiative), With<Player>>,
+        Query<(Entity, &mut Initiative), With<Enemy>>,
+    )>,
 ) {
     // only run if combat is starting
     if !battle_state.combat_active {
@@ -22,13 +23,15 @@ pub fn start_combat_system(
 
     // Randomize initiative (w6 + base initiative)
     let mut rng = rand::rng();
-
-    for (entity, mut initiative) in player_query.iter_mut() {
+    
+    // First, handle players
+    for (entity, mut initiative) in queries.p0().iter_mut() {
         let roll = rng.random_range(1..=6);
         initiative.randomized = initiative.base + roll;
     }
 
-    for (entity, mut initiative) in enemy_query.iter_mut() {
+    // Then, handle enemies
+    for (entity, mut initiative) in queries.p1().iter_mut() {
         let roll = rng.random_range(1..=6);
         initiative.randomized = initiative.base + roll;
     }
@@ -36,11 +39,13 @@ pub fn start_combat_system(
     // Build turn order based on initiative
     let mut all_combatants: Vec<(Entity, u32)> = Vec::new();
 
-    for (entity, initiative) in player_query.iter() {
+    // Collect player initiatives
+    for (entity, initiative) in queries.p0().iter() {
         all_combatants.push((entity, initiative.randomized));
     }
 
-    for (entity, initiative) in enemy_query.iter() {
+    // Collect enemy initiatives
+    for (entity, initiative) in queries.p1().iter() {
         all_combatants.push((entity, initiative.randomized));
     }
 
@@ -52,9 +57,11 @@ pub fn start_combat_system(
     battle_state.current_turn_index = 0;
     battle_state.current_round = 1;
 
+    let enemy_count = queries.p1().iter().count();
+
     // Send event that combat started
     combat_start_events.write(CombatStartEvent {
-        enemy_count: enemy_query.iter().count(),
+        enemy_count,
     });
 }
 
@@ -165,7 +172,7 @@ pub fn execute_attack_system(
 
             // roll damage dice
             for _ in 0..dice_roll.0 {
-                total_damage += rng.random_range(1..=20);
+                total_damage += rng.random_range(1..=6);
             }
 
             // bonus damage from wuchtschlag

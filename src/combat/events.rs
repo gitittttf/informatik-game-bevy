@@ -19,7 +19,7 @@ pub struct PlayerTurnEvent;
 // Event sent when its the enemies turn
 #[derive(Event)]
 pub struct EnemyTurnEvent {
-    pub enemy_entity: Enitty,
+    pub enemy_entity: Entity,
 }
 
 // Event for combat messages

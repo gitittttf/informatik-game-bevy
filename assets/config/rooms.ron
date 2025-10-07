@@ -1,1 +1,42 @@
-// TODO
+[
+    (
+        name: "Intro Room",
+        enemies: ["MiniZombie"],
+        upgrade: Some("Life"),
+    ),
+    (
+        name: "Floor Room",
+        enemies: ["MiniZombie", "MiniZombie"],
+        upgrade: Some("Damage"),
+    ),
+    (
+        name: "Pantry",
+        enemies: ["MiniZombie", "MiniZombie"],
+        upgrade: Some("PantryCompound"),
+    ),
+    (
+        name: "Library",
+        enemies: ["MiniZombie", "MiniZombie", "Scientist"],
+        upgrade: Some("Skill"),
+    ),
+    (
+        name: "Dining Hall",
+        enemies: ["MiniZombie", "MiniZombie", "MiniZombie", "Scientist", "Scientist"],
+        upgrade: Some("Armour"),
+    ),
+    (
+        name: "Laboratory",
+        enemies: ["Scientist", "Scientist", "Scientist", "Scientist"],
+        upgrade: Some("Attack"),
+    ),
+    (
+        name: "Corridor",
+        enemies: ["BigZombie", "BigZombie", "BigZombie"],
+        upgrade: Some("Finte"),
+    ),
+    (
+        name: "Final Room",
+        enemies: ["Endboss"],
+        upgrade: None,
+    ),
+]

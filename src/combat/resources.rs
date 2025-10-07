@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 // Current state of the battle
-#[derive(Resource)]
+#[derive(Resource, Default)]
 pub struct BattleState {
     pub current_round: u32,
     pub turn_queue: Vec<Entity>, // List of who goes in what order
@@ -12,13 +12,7 @@ pub struct BattleState {
 
 impl BattleState {
     pub fn new() -> Self {
-        Self {
-            current_round: 0,
-            turn_queue: Vec::new(),
-            current_turn_index: 0,
-            waiting_for_player_input: false,
-            combat_active: false,
-        }
+        Self::default()
     }
 
     pub fn current_turn(&self) -> Option<Entity> {

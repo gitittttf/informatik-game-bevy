@@ -15,7 +15,7 @@ impl Health {
         self.current > 0
     }
 
-    pub fn take_damage(&mut self, amount: u32, armor: u32) {
+    pub fn take_damage(&mut self, amount: u32, armor: u32) -> u32 {
         let actual_damage = amount.saturating_sub(armor);
         self.current = self.current.saturating_sub(actual_damage);
         actual_damage

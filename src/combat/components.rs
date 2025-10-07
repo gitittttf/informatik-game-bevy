@@ -11,7 +11,7 @@ pub struct QueuedAction {
 impl QueuedAction {
     pub fn new() -> Self {
         Self {
-            taget: None,
+            target: None,
             finte_level: 0,
             wuchtschlag_level: 0,
         }

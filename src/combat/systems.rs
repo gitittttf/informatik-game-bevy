@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use rand::Rnd;
+use rand::Rng;
 
 use crate::character::*;
 use super::components::*;
@@ -10,9 +10,9 @@ use super::events::*;
 pub fn start_combat_system(
     mut commands: Commands,
     mut battle_state: ResMut<BattleState>,
-    mut combat_start_events: EventWriter<CombatStartEvent>,
+    mut combat_start_events: MessageWriter<CombatStartEvent>,
     // Query gets all entities with Player component + their other components
-    mut player_query: Query<(Enitity, &mut Initiative), With<Player>>,
+    mut player_query: Query<(Entity, &mut Initiative), With<Player>>,
     mut enemy_query: Query<(Entity, &mut Initiative), With<Enemy>>,
 ) {
     // only run if combat is starting
@@ -21,15 +21,15 @@ pub fn start_combat_system(
     }
 
     // Randomize initiative (w6 + base initiative)
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     for (entity, mut initiative) in player_query.iter_mut() {
-        let roll = rng.gen_range(1..=6);
+        let roll = rng.random_range(1..=6);
         initiative.randomized = initiative.base + roll;
     }
 
     for (entity, mut initiative) in enemy_query.iter_mut() {
-        let roll = rng.gen_range(1..=6);
+        let roll = rng.random_range(1..=6);
         initiative.randomized = initiative.base + roll;
     }
 
@@ -53,16 +53,16 @@ pub fn start_combat_system(
     battle_state.current_round = 1;
 
     // Send event that combat started
-    combat_start_events.send(CombatStartEvent {
+    combat_start_events.write(CombatStartEvent {
         enemy_count: enemy_query.iter().count(),
     });
 }
 
 pub fn process_turn_system(
     battle_state: Res<BattleState>,
-    mut round_events: EventWriter<RoundStartEvent>,
-    mut player_turn_events: EventWriter<PlayerTurnEvent>,
-    mut enemy_turn_events: EventWriter<EnemyTurnEvent>,
+    mut round_events: MessageWriter<RoundStartEvent>,
+    mut player_turn_events: MessageWriter<PlayerTurnEvent>,
+    mut enemy_turn_events: MessageWriter<EnemyTurnEvent>,
     player_query: Query<Entity, With<Player>>,
     enemy_query: Query<Entity, With<Enemy>>,
 ) {
@@ -81,12 +81,12 @@ pub fn process_turn_system(
         // Check if its a player
         if player_query.get(current_entity).is_ok() {
             if !battle_state.waiting_for_player_input {
-                player_turn_events.send(PlayerTurnEvent);
+                player_turn_events.write(PlayerTurnEvent);
             }
         }
         // Ckeck if its an enemy
         else if enemy_query.get(current_entity).is_ok() {
-            enemy_turn_events.send(EnemyTurnEvent {
+            enemy_turn_events.write(EnemyTurnEvent {
                 enemy_entity: current_entity,
             });
         }
@@ -95,8 +95,8 @@ pub fn process_turn_system(
 
 // system that executes an attack
 pub fn execute_attack_system(
-    mut commmands: Commands,
-    mut message_events: EventWriter<CombatMessageEvent>,
+    mut commands: Commands,
+    mut message_events: MessageWriter<CombatMessageEvent>,
     attacker_query: Query<(
         &CharacterType,
         &Attack,
@@ -141,8 +141,8 @@ pub fn execute_attack_system(
         };
 
         // Roll w20 for attack
-        let mut rng = rand::thread_rng();
-        let attack_roll = rng.gen_range(1..=20);
+        let mut rng = rand::rng();
+        let attack_roll = rng.random_range(1..=20);
 
         // Calculate attack threshold (harder with special moves)
         let finte = action.finte_level.min(abilities.finte_level);
@@ -151,28 +151,28 @@ pub fn execute_attack_system(
             .saturating_sub(finte)
             .saturating_sub(wuchtschlag * 2);
 
-        // Send attack start message
-        message_events.send(CombatMessageEvent {
+        // write attack start message
+        message_events.write(CombatMessageEvent {
             message: format!("{} startet den Angriff!", attacker_type.0),
-            message_type: CombatMessageType::PlayerAction,
+            message_type: MessageType::PlayerAction,
             delay_ms: 0,
         });
 
         // Check if attack hits
         if attack_roll <= attack_threshold {
             // attack hits
-            let mut total_damage = damage.stat.0;
+            let mut total_damage = damage_stat.0;
 
             // roll damage dice
             for _ in 0..dice_roll.0 {
-                total_damage += rng.gen_range(1..=20);
+                total_damage += rng.random_range(1..=20);
             }
 
             // bonus damage from wuchtschlag
             total_damage += wuchtschlag * 2;
 
             // defender tries defending
-            let defense_roll = rng.gen_range(1..=20);
+            let defense_roll = rng.random_range(1..=20);
             let defense_debuff = finte * 2;
             let defense_threshold = defender_defense.0.saturating_sub(defense_debuff);
 
@@ -181,24 +181,24 @@ pub fn execute_attack_system(
                 let actual_damage = total_damage.saturating_sub(defender_armor.0);
                 defender_health.take_damage(actual_damage, 0);
 
-                message_events.send(CombatMessageEvent {
+                message_events.write(CombatMessageEvent {
                     message: format!("{} nimmt {} Schaden!", defender_type.0, actual_damage),
-                    message_type: CombatMessageType::Damage,
+                    message_type: MessageType::Damage,
                     delay_ms: 300,
                 });
             } else {
                 // defense success
-                message_events.send(CombatMessageEvent {
+                message_events.write(CombatMessageEvent {
                     message: format!("{} parriert erfolgreich!", defender_type.0),
-                    message_type: CombatMessageType::Defense,
+                    message_type: MessageType::Defense,
                     delay_ms: 200,
                 });
             }
         } else {
             // attack missed
-            message_events.send(CombatMessageEvent {
+            message_events.write(CombatMessageEvent {
                     message: format!("{} scheiterte anzugreifen...", attacker_type.0),
-                    message_type: CombatMessageType::PlayerAction,
+                    message_type: MessageType::PlayerAction,
                     delay_ms: 0,
             });
         }
@@ -213,7 +213,7 @@ pub fn execute_attack_system(
 pub fn enemy_ai_system(
     mut commands: Commands,
     battle_state: Res<BattleState>,
-    mut enemy_turn_events: EventReader<EnemyTurnEvent>,
+    mut enemy_turn_events: MessageReader<EnemyTurnEvent>,
     enemy_query: Query<&SpecialAbilities, With<Enemy>>,
     player_query: Query<Entity, With<Player>>,
 ) {
@@ -226,14 +226,14 @@ pub fn enemy_ai_system(
         };
 
         // Get player entity (target)
-        let Ok(player_entity) = player_query.get_single() else {
+        let Ok(player_entity) = player_query.single() else {
             continue;
         };
 
         // Randomly choose finte and wuchtschlag levels
-        let mut rng = rang::thread_rng();
-        let finte = rng.gen_range(0..=abilities.finte_level);
-        let wuchtschlag = rng.gen_range(0..=abilities.wuchtschlag_level);
+        let mut rng = rand::rng();
+        let finte = rng.random_range(0..=abilities.finte_level);
+        let wuchtschlag = rng.random_range(0..=abilities.wuchtschlag_level);
         
         // Add action to enemy
         commands.entity(enemy_entity).insert(QueuedAction {
@@ -248,7 +248,7 @@ pub fn enemy_ai_system(
 // system that checks if combat should end
 pub fn check_victory_system(
     mut battle_state: ResMut<BattleState>,
-    mut combat_end_events: EventWriter<CombatEndEvent>,
+    mut combat_end_events: MessageWriter<CombatEndEvent>,
     player_query: Query<&Health, With <Player>>,
     enemy_query: Query<&Health, With<Enemy>>,
 ) {
@@ -257,10 +257,10 @@ pub fn check_victory_system(
     }
 
     // check if player dead
-    if let Ok(player_health) = player_query.get_single() {
+    if let Ok(player_health) = player_query.single() {
         if !player_health.is_alive() {
             battle_state.combat_active = false;
-            combat_end_events.send(CombatEndEvent { player_won: false });
+            combat_end_events.write(CombatEndEvent { player_won: false });
         }
     };
 
@@ -268,6 +268,6 @@ pub fn check_victory_system(
     let enemies_alive = enemy_query.iter().any(|health| health.is_alive());
     if !enemies_alive {
         battle_state.combat_active = false;
-        combat_end_events.send(CombatEndEvent { player_won: true });
+        combat_end_events.write(CombatEndEvent { player_won: true });
     }
 }

@@ -1,38 +1,32 @@
 use bevy::prelude::*;
 
-// Event sent when combat starts
-#[derive(Event)]
+#[derive(Message)]  // Changed from Event
 pub struct CombatStartEvent {
     pub enemy_count: usize,
 }
 
-// Event sent when a new round starts
-#[derive(Event)]
+#[derive(Message)]  // Changed from Event
 pub struct RoundStartEvent {
     pub round_number: u32,
 }
 
-// Event sent when its the players turn
-#[derive(Event)]
+#[derive(Message)]  // Changed from Event
 pub struct PlayerTurnEvent;
 
-// Event sent when its the enemies turn
-#[derive(Event)]
+#[derive(Message)]  // Changed from Event
 pub struct EnemyTurnEvent {
     pub enemy_entity: Entity,
 }
 
-// Event for combat messages
-#[derive(Event)]
-pub struct CombatMessageType {
+#[derive(Message)]  // Changed from Event
+pub struct CombatMessageEvent {
     pub message: String,
-    pub message_type: CombatMessageType,
+    pub message_type: MessageType,
     pub delay_ms: u64,
 }
 
-// Types of combat messages (for coloring)
 #[derive(Debug, Clone, Copy)]
-pub enum CombatMessageType {
+pub enum MessageType {
     RoundStart,
     PlayerAction,
     EnemyAction,
@@ -44,8 +38,7 @@ pub enum CombatMessageType {
     CombatEnd,
 }
 
-// Event when combat ends
-#[derive(Event)]
+#[derive(Message)]  // Changed from Event
 pub struct CombatEndEvent {
     pub player_won: bool,
 }

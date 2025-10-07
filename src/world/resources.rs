@@ -49,3 +49,9 @@ impl WorldState {
         format!("Raum {} von {}", self.current_room_index + 1, self.total_rooms)
     }
 }
+
+impl Default for WorldState {
+    fn default() -> Self {
+        Self::new()
+    }
+}

@@ -9,7 +9,5 @@ pub use resources::*;
 pub use systems::*;
 
 pub fn plugin(app: &mut App) {
-    app
-        .init_resource::<WorldState>();
-    // systems called manually by game manager
+    app.init_resource::<WorldState>();
 }

@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use crate::game_state::GameState;
+use crate::combat::events::PlayerTurnEvent;
 
 pub struct InputPlugin;
 
@@ -82,7 +83,7 @@ fn handle_gameplay_input(
 fn handle_combat_input(
     keyboard: Res<ButtonInput<KeyCode>>,
     mut combat_selection: ResMut<CombatSelection>,
-    mut player_turn_events: EventWriter<PlayerTurnEvent>,
+    mut player_turn_events: MessageWriter<PlayerTurnEvent>,
 ) {
     // Arrow keys to navigate actions/enemies
     if keyboard.just_pressed(KeyCode::ArrowUp) {
@@ -114,7 +115,7 @@ fn handle_combat_input(
     
     // Enter to confirm action
     if keyboard.just_pressed(KeyCode::Enter) {
-        player_turn_events.send(PlayerTurnEvent);
+        player_turn_events.write(PlayerTurnEvent);
     }
 }
 

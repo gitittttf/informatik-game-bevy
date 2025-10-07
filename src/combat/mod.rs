@@ -17,12 +17,12 @@ use crate::game_state::GameState;
 pub fn plugin(app: &mut App) {
     app
         // add events
-        .add_event::<CombatStartEvent>()
-        .add_event::<RoundStartEvent>()
-        .add_event::<PlayerTurnEvent>()
-        .add_event::<EnemyTurnEvent>()
-        .add_event::<CombatMessageEvent>()
-        .add_event::<CombatEndEvent>()
+        .add_message::<CombatStartEvent>()
+        .add_message::<RoundStartEvent>()
+        .add_message::<PlayerTurnEvent>()
+        .add_message::<EnemyTurnEvent>()
+        .add_message::<CombatMessageEvent>()
+        .add_message::<CombatEndEvent>()
 
         // add resources
         .init_resource::<BattleState>()

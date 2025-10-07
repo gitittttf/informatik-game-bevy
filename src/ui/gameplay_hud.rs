@@ -62,7 +62,7 @@ pub fn setup_gameplay_hud(mut commands: Commands) {
                     ..default()
                 },
                 BackgroundColor(Color::srgb(0.2, 0.2, 0.2)),
-                BorderColor(Color::WHITE),
+                BorderColor::from(Color::WHITE),
             ))
             .with_children(|bar_bg| {
                 // HP bar fill
@@ -191,7 +191,7 @@ pub fn update_story_text_typewriter(
     if story.visible_chars < story.full_text.len() {
         story.timer.tick(time.delta());
         
-        if story.timer.finished() {
+        if story.timer.is_finished() {
             story.visible_chars += 1;
             story.timer.reset();
         }

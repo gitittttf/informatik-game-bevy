@@ -132,8 +132,8 @@ fn handle_settings_input(
 // Resources for UI state
 #[derive(Resource)]
 pub struct MenuSelection {
-    current: usize,
-    max: usize,
+    pub current: usize,
+    pub max: usize,
 }
 
 impl Default for MenuSelection {
@@ -158,8 +158,8 @@ impl MenuSelection {
 
 #[derive(Resource)]
 pub struct CharacterSelection {
-    current: usize,
-    max: usize,
+    pub current: usize,
+    pub max: usize,
 }
 
 impl Default for CharacterSelection {

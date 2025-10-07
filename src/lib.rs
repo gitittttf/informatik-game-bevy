@@ -23,9 +23,10 @@ impl Plugin for GamePlugin {
             //plugin registrations TODO
             .add_plugins(combat::plugin)
             .add_plugins(character::plugin)
+            .add_plugins(ui::plugin)
+            .add_plugins(world::plugin)
             .add_plugins(InputPlugin)
             .add_plugins(CameraPlugin)
-            // etc
             ;
     }
 }

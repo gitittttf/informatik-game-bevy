@@ -5,11 +5,15 @@ use crate::input::{MenuSelection};
 #[derive(Component)]
 pub struct MainMenuMarker;
 
-pub fn setup_main_menu(mut commands: Commands, mut menu_selection: ResMut<MenuSelection>) {
+pub fn setup_main_menu(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut menu_selection: ResMut<MenuSelection>,
+) {
+    let font = asset_server.load("fonts/atlantisheadbold.ttf");
     menu_selection.current = 0;
-    menu_selection.max = 2;
-    
-    // Root UI node
+    menu_selection.max = 1;
+
     commands.spawn((
         Node {
             width: Val::Percent(100.0),
@@ -19,32 +23,28 @@ pub fn setup_main_menu(mut commands: Commands, mut menu_selection: ResMut<MenuSe
             flex_direction: FlexDirection::Column,
             ..default()
         },
-        BackgroundColor(Color::BLACK),
+        BackgroundColor(Color::srgb(0.12, 0.12, 0.15)),
         MainMenuMarker,
     ))
     .with_children(|parent| {
-        // Title
         parent.spawn((
             Text::new("DUNGEON"),
             TextFont {
+                font: font.clone(),
                 font_size: 60.0,
                 ..default()
             },
             TextColor(Color::srgb(0.0, 1.0, 0.0)),
         ));
-        
-        // Menu options
         parent.spawn((
-            Text::new("\n► Neues Spiel starten\n  Spiel beenden"),
+            Text::new("\n> Neues Spiel starten\n  Spiel beenden"),
             TextFont {
-                font_size: 30.0,
+                font,
+                font_size: 32.0,
                 ..default()
             },
-            TextColor(Color::WHITE),
-            Node {
-                margin: UiRect::top(Val::Px(50.0)),
-                ..default()
-            },
+            TextColor(Color::srgb(0.9, 0.9, 0.9)),
+            MainMenuMarker,
         ));
     });
 }
@@ -54,7 +54,7 @@ pub fn update_main_menu(
     mut query: Query<&mut Text, With<MainMenuMarker>>,
 ) {
     for mut text in query.iter_mut() {
-        if text.0.contains("►") {
+        if text.0.contains(">") {
             text.0 = match menu_selection.current {
                 0 => "> Neues Spiel starten\n  Spiel beenden".to_string(),
                 1 => "  Neues Spiel starten\n> Spiel beenden".to_string(),

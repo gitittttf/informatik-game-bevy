@@ -20,7 +20,7 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app
             .init_state::<GameState>()
-            .add_systems(Startup, setup_camera) // Kamera-Setup hinzufügen
+            .add_systems(Startup, setup_camera) // Kamerasetup hinzufügen
             .add_plugins(combat::plugin)
             .add_plugins(character::plugin)
             .add_plugins(ui::plugin)

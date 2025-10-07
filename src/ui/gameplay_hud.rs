@@ -18,8 +18,8 @@ pub struct CombatLogText;
 #[derive(Component)]
 pub struct StoryTextDisplay;
 
-pub fn setup_gameplay_hud(mut commands: Commands) {
-    // Root container
+pub fn setup_gameplay_hud(mut commands: Commands, asset_server: Res<AssetServer>) {
+    let font = asset_server.load("fonts/atlantisheadbold.ttf");
     commands.spawn((
         Node {
             width: Val::Percent(100.0),
@@ -46,12 +46,12 @@ pub fn setup_gameplay_hud(mut commands: Commands) {
             hp_section.spawn((
                 Text::new("Player HP"),
                 TextFont {
+                    font: font.clone(),
                     font_size: 20.0,
                     ..default()
                 },
                 TextColor(Color::WHITE),
             ));
-            
             // HP bar background
             hp_section.spawn((
                 Node {
@@ -76,11 +76,11 @@ pub fn setup_gameplay_hud(mut commands: Commands) {
                     HpBarFill,
                 ));
             });
-            
             // HP text (100/100)
             hp_section.spawn((
                 Text::new("100 / 100"),
                 TextFont {
+                    font: font.clone(),
                     font_size: 18.0,
                     ..default()
                 },
@@ -88,7 +88,7 @@ pub fn setup_gameplay_hud(mut commands: Commands) {
                 HpBarText,
             ));
         });
-        
+
         // Story text section
         parent.spawn((
             Node {
@@ -103,6 +103,7 @@ pub fn setup_gameplay_hud(mut commands: Commands) {
             story_section.spawn((
                 Text::new(""),
                 TextFont {
+                    font: font.clone(),
                     font_size: 18.0,
                     ..default()
                 },
@@ -110,7 +111,7 @@ pub fn setup_gameplay_hud(mut commands: Commands) {
                 StoryTextDisplay,
             ));
         });
-        
+
         // Combat log section
         parent.spawn((
             Node {
@@ -125,6 +126,7 @@ pub fn setup_gameplay_hud(mut commands: Commands) {
             log_section.spawn((
                 Text::new("--- Combat Log ---"),
                 TextFont {
+                    font,
                     font_size: 16.0,
                     ..default()
                 },

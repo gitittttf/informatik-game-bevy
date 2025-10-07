@@ -1,4 +1,4 @@
-use bevy::{prelude::*, window::PresentMode};
+use bevy::{input_focus::InputFocus, prelude::*, window::PresentMode};
 use informatik_game_bevy::{GamePlugin, InputPlugin, GameState}; 
 
 fn main() {
@@ -12,6 +12,7 @@ fn main() {
             }),
             ..default()
         }))
+        .init_resource::<InputFocus>()
         .init_state::<GameState>()
         .add_plugins(GamePlugin)
         .add_plugins(InputPlugin)

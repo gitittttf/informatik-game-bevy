@@ -11,22 +11,14 @@ pub use gameplay_hud::*;
 
 pub fn plugin(app: &mut App) {
     app
-        // Resources for UI state
-        .insert_resource(StoryText {
-            full_text: String::new(),
-            visible_chars: 0,
-            timer: Timer::from_seconds(0.05, TimerMode::Repeating),
-        })
-        .init_resource::<CombatLog>()
-        
         // Main menu systems
         .add_systems(OnEnter(GameState::MainMenu), setup_main_menu)
-        .add_systems(Update, update_main_menu.run_if(in_state(GameState::MainMenu)))
+        .add_systems(Update, update_main_menu_buttons.run_if(in_state(GameState::MainMenu)))
         .add_systems(OnExit(GameState::MainMenu), cleanup_menu::<MainMenuMarker>)
         
         // Character selection systems
         .add_systems(OnEnter(GameState::CharacterSelection), setup_character_select)
-        .add_systems(Update, update_character_select.run_if(in_state(GameState::CharacterSelection)))
+        .add_systems(Update, update_character_select_buttons.run_if(in_state(GameState::CharacterSelection)))
         .add_systems(OnExit(GameState::CharacterSelection), cleanup_menu::<CharSelectMarker>)
         
         // Gameplay HUD systems

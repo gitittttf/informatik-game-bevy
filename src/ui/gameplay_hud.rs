@@ -20,6 +20,7 @@ pub struct StoryTextDisplay;
 
 pub fn setup_gameplay_hud(mut commands: Commands, asset_server: Res<AssetServer>) {
     let font = asset_server.load("fonts/atlantisheadbold.ttf");
+    
     commands.spawn((
         Node {
             width: Val::Percent(100.0),
@@ -32,15 +33,13 @@ pub fn setup_gameplay_hud(mut commands: Commands, asset_server: Res<AssetServer>
     ))
     .with_children(|parent| {
         // HP Bar section
-        parent.spawn((
-            Node {
-                width: Val::Percent(100.0),
-                height: Val::Px(80.0),
-                padding: UiRect::all(Val::Px(10.0)),
-                flex_direction: FlexDirection::Column,
-                ..default()
-            },
-        ))
+        parent.spawn(Node {
+            width: Val::Percent(100.0),
+            height: Val::Px(80.0),
+            padding: UiRect::all(Val::Px(10.0)),
+            flex_direction: FlexDirection::Column,
+            ..default()
+        })
         .with_children(|hp_section| {
             // HP label
             hp_section.spawn((
@@ -52,6 +51,7 @@ pub fn setup_gameplay_hud(mut commands: Commands, asset_server: Res<AssetServer>
                 },
                 TextColor(Color::WHITE),
             ));
+            
             // HP bar background
             hp_section.spawn((
                 Node {
@@ -62,7 +62,7 @@ pub fn setup_gameplay_hud(mut commands: Commands, asset_server: Res<AssetServer>
                     ..default()
                 },
                 BackgroundColor(Color::srgb(0.2, 0.2, 0.2)),
-                BorderColor::from(Color::WHITE),
+                BorderColor::all(Color::WHITE),
             ))
             .with_children(|bar_bg| {
                 // HP bar fill
@@ -76,6 +76,7 @@ pub fn setup_gameplay_hud(mut commands: Commands, asset_server: Res<AssetServer>
                     HpBarFill,
                 ));
             });
+            
             // HP text (100/100)
             hp_section.spawn((
                 Text::new("100 / 100"),
@@ -113,15 +114,13 @@ pub fn setup_gameplay_hud(mut commands: Commands, asset_server: Res<AssetServer>
         });
 
         // Combat log section
-        parent.spawn((
-            Node {
-                width: Val::Percent(100.0),
-                height: Val::Percent(100.0),
-                padding: UiRect::all(Val::Px(10.0)),
-                flex_direction: FlexDirection::Column,
-                ..default()
-            },
-        ))
+        parent.spawn(Node {
+            width: Val::Percent(100.0),
+            height: Val::Percent(100.0),
+            padding: UiRect::all(Val::Px(10.0)),
+            flex_direction: FlexDirection::Column,
+            ..default()
+        })
         .with_children(|log_section| {
             log_section.spawn((
                 Text::new("--- Combat Log ---"),
@@ -153,7 +152,7 @@ pub fn update_hp_bar(
         
         // Update text
         for mut text in text_query.iter_mut() {
-            text.0 = format!("{} / {}", health.current, health.max);
+            **text = format!("{} / {}", health.current, health.max);
         }
     }
 }
@@ -180,7 +179,7 @@ pub fn update_combat_log(
             "--- Combat Log ---\n{}",
             combat_log.messages.join("\n")
         );
-        text.0 = log_text;
+        **text = log_text;
     }
 }
 
@@ -200,7 +199,7 @@ pub fn update_story_text_typewriter(
         
         // Update display
         for mut text in query.iter_mut() {
-            text.0 = story.full_text.chars()
+            **text = story.full_text.chars()
                 .take(story.visible_chars)
                 .collect();
         }

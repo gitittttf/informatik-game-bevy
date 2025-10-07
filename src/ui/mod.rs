@@ -11,6 +11,10 @@ pub use gameplay_hud::*;
 
 pub fn plugin(app: &mut App) {
     app
+        // Initialize resources
+        .init_resource::<StoryText>()
+        .init_resource::<CombatLog>()
+        
         // Main menu systems
         .add_systems(OnEnter(GameState::MainMenu), setup_main_menu)
         .add_systems(Update, update_main_menu_buttons.run_if(in_state(GameState::MainMenu)))
@@ -44,6 +48,16 @@ pub struct StoryText {
     pub full_text: String,
     pub visible_chars: usize,
     pub timer: Timer,
+}
+
+impl Default for StoryText {
+    fn default() -> Self {
+        Self {
+            full_text: String::new(),
+            visible_chars: 0,
+            timer: Timer::from_seconds(0.05, TimerMode::Repeating),
+        }
+    }
 }
 
 #[derive(Resource, Default)]

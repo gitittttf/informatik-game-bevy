@@ -1,4 +1,4 @@
-use bevy::{camera::CameraPlugin, input::InputPlugin, prelude::*};
+use bevy::{camera::CameraPlugin, input::InputPlugin as BevyInputPlugin, prelude::*};
 
 mod game_state;
 
@@ -12,6 +12,8 @@ mod world;
 mod ui;
 
 pub use game_state::GameState;
+// Re-export the crate-local InputPlugin so binaries can use `informatik_game_bevy::InputPlugin`
+pub use input::InputPlugin;
 
 // Main plugin that ties everything together
 pub struct GamePlugin;
@@ -25,7 +27,7 @@ impl Plugin for GamePlugin {
             .add_plugins(character::plugin)
             .add_plugins(ui::plugin)
             .add_plugins(world::plugin)
-            .add_plugins(InputPlugin)
+            .add_plugins(BevyInputPlugin)
             .add_plugins(CameraPlugin)
             ;
     }

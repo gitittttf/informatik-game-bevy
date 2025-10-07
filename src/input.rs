@@ -7,6 +7,10 @@ pub struct InputPlugin;
 impl Plugin for InputPlugin {
     fn build(&self, app: &mut App) {
         app
+            .init_resource::<MenuSelection>()
+            .init_resource::<CharacterSelection>()
+            .init_resource::<ShowMap>()
+            .init_resource::<CombatSelection>()
             .add_systems(Update, handle_menu_input.run_if(in_state(GameState::MainMenu)))
             .add_systems(Update, handle_character_select_input.run_if(in_state(GameState::CharacterSelection)))
             .add_systems(Update, handle_gameplay_input.run_if(in_state(GameState::Gameplay)))

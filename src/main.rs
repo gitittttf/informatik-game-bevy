@@ -1,10 +1,19 @@
-use bevy::prelude::*;
-use informatik_game_bevy::{GamePlugin, InputPlugin};
+use bevy::{prelude::*, window::PresentMode};
+use informatik_game_bevy::{GamePlugin, InputPlugin, GameState}; 
 
 fn main() {
     App::new()
-        .add_plugins(DefaultPlugins) // Window, rendering und input
-        .add_plugins(GamePlugin) // Game logik
-        .add_plugins(InputPlugin) // crate-local input handling
-        .run(); // Bevy's game loop
+        .insert_resource(ClearColor(Color::BLACK))
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+            primary_window: Some(Window {
+                present_mode: PresentMode::AutoVsync,
+                title: "Dungeon Game".to_string(),
+                ..default()
+            }),
+            ..default()
+        }))
+        .init_state::<GameState>()
+        .add_plugins(GamePlugin)
+        .add_plugins(InputPlugin)
+        .run();
 }

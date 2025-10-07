@@ -56,8 +56,8 @@ pub fn update_main_menu(
     for mut text in query.iter_mut() {
         if text.0.contains("►") {
             text.0 = match menu_selection.current {
-                0 => "► Neues Spiel starten\n  Spiel beenden".to_string(),
-                1 => "  Neues Spiel starten\n► Spiel beenden".to_string(),
+                0 => "> Neues Spiel starten\n  Spiel beenden".to_string(),
+                1 => "  Neues Spiel starten\n> Spiel beenden".to_string(),
                 _ => text.0.clone(),
             };
         }

@@ -1,4 +1,4 @@
-use bevy::{camera::CameraPlugin, input::InputPlugin as BevyInputPlugin, prelude::*};
+use bevy::prelude::*;
 
 mod game_state;
 
@@ -12,23 +12,22 @@ mod world;
 mod ui;
 
 pub use game_state::GameState;
-// Re-export the crate-local InputPlugin so binaries can use `informatik_game_bevy::InputPlugin`
 pub use input::InputPlugin;
 
-// Main plugin that ties everything together
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app
             .init_state::<GameState>()
-            //plugin registrations TODO
+            .add_systems(Startup, setup_camera) // Kamera-Setup hinzufügen
             .add_plugins(combat::plugin)
             .add_plugins(character::plugin)
             .add_plugins(ui::plugin)
-            .add_plugins(world::plugin)
-            .add_plugins(BevyInputPlugin)
-            .add_plugins(CameraPlugin)
-            ;
+            .add_plugins(world::plugin);
     }
+}
+
+fn setup_camera(mut commands: Commands) {
+    commands.spawn(Camera2d::default());
 }

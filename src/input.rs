@@ -25,10 +25,17 @@ fn handle_menu_input(
     mut next_state: ResMut<NextState<GameState>>,
     mut menu_selection: ResMut<MenuSelection>,
 ) {
+    println!("handle_menu_input läuft, current: {}", menu_selection.current);
     if keyboard.just_pressed(KeyCode::ArrowUp) {
         menu_selection.previous();
     }
     if keyboard.just_pressed(KeyCode::ArrowDown) {
+        menu_selection.next();
+    }
+    if keyboard.just_pressed(KeyCode::KeyW) {
+        menu_selection.previous();
+    }
+    if keyboard.just_pressed(KeyCode::KeyS) {
         menu_selection.next();
     }
     if keyboard.just_pressed(KeyCode::Enter) {

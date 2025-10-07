@@ -1,12 +1,15 @@
-use bevy::prelude::*;
+use bevy::{camera::CameraPlugin, input::InputPlugin, prelude::*};
 
 mod game_state;
 
-// import plugin modules TODO
-// mod combat;
-// mod character;
-// mod world;
-// mod ui;
+// import plugin modules
+mod prelude;
+mod input;
+mod camera;
+mod combat;
+mod character;
+mod world;
+mod ui;
 
 pub use game_state::GameState;
 
@@ -18,8 +21,10 @@ impl Plugin for GamePlugin {
         app
             .init_state::<GameState>()
             //plugin registrations TODO
-            // .add_plugins(combat::plugin)
-            // .add_plugins(character::plugin)
+            .add_plugins(combat::plugin)
+            .add_plugins(character::plugin)
+            .add_plugins(InputPlugin)
+            .add_plugins(CameraPlugin)
             // etc
             ;
     }

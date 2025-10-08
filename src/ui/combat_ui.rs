@@ -124,7 +124,7 @@ pub fn setup_combat_ui(
     });
 }
 
-fn create_player_column(parent: &mut ChildBuilder, font: &Handle<Font>) {
+fn create_player_column(parent: &mut ChildSpawnerCommands<'_>, font: &Handle<Font>) {
     parent.spawn((
         Node {
             width: Val::Percent(33.3),
@@ -226,7 +226,7 @@ fn create_player_column(parent: &mut ChildBuilder, font: &Handle<Font>) {
     });
 }
 
-fn create_combat_scene_column(parent: &mut ChildBuilder, font: &Handle<Font>) {
+fn create_combat_scene_column(parent: &mut ChildSpawnerCommands<'_>, font: &Handle<Font>) {
     parent.spawn((
         Node {
             width: Val::Percent(33.3),
@@ -253,7 +253,7 @@ fn create_combat_scene_column(parent: &mut ChildBuilder, font: &Handle<Font>) {
     });
 }
 
-fn create_enemy_column(parent: &mut ChildBuilder, font: &Handle<Font>) {
+fn create_enemy_column(parent: &mut ChildSpawnerCommands<'_>, font: &Handle<Font>) {
     parent.spawn((
         Node {
             width: Val::Percent(33.3),

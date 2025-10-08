@@ -4,16 +4,19 @@ use crate::game_state::GameState;
 pub mod main_menu;
 pub mod character_select;
 pub mod gameplay_hud;
+pub mod combat_ui;
 
 pub use main_menu::*;
 pub use character_select::*;
 pub use gameplay_hud::*;
+pub use combat_ui::*;
 
 pub fn plugin(app: &mut App) {
     app
         // Initialize resources
         .init_resource::<StoryText>()
         .init_resource::<CombatLog>()
+        .init_resource::<CombatUIState>()
         
         // Main menu systems
         .add_systems(OnEnter(GameState::MainMenu), setup_main_menu)
@@ -34,7 +37,16 @@ pub fn plugin(app: &mut App) {
             update_combat_log,
             update_story_text_typewriter,
         ).run_if(in_state(GameState::Gameplay)))
-        .add_systems(OnExit(GameState::Gameplay), cleanup_menu::<GameplayHudMarker>);
+        .add_systems(OnExit(GameState::Gameplay), cleanup_menu::<GameplayHudMarker>)
+        
+        // Combat UI systems
+        .add_systems(OnEnter(GameState::Combat), setup_combat_ui)
+        .add_systems(Update, (
+            handle_combat_ui_input,
+            update_combat_ui,
+            update_combat_log_display,
+        ).run_if(in_state(GameState::Combat)))
+        .add_systems(OnExit(GameState::Combat), cleanup_menu::<CombatUIMarker>);
 }
 
 // Generic cleanup system

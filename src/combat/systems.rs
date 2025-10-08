@@ -66,7 +66,7 @@ pub fn start_combat_system(
 }
 
 pub fn process_turn_system(
-    battle_state: Res<BattleState>,
+    mut battle_state: ResMut<BattleState>,
     mut round_events: MessageWriter<RoundStartEvent>,
     mut player_turn_events: MessageWriter<PlayerTurnEvent>,
     mut enemy_turn_events: MessageWriter<EnemyTurnEvent>,
@@ -79,7 +79,12 @@ pub fn process_turn_system(
 
     // Check if round is over
     if battle_state.is_round_over() {
-        // WIll be handled by start_new_round_system
+        // Start new round
+        battle_state.current_round += 1;
+        battle_state.current_turn_index = 0;
+        round_events.write(RoundStartEvent {
+            round_number: battle_state.current_round,
+        });
         return;
     }
 
@@ -88,10 +93,11 @@ pub fn process_turn_system(
         // Check if its a player
         if player_query.get(current_entity).is_ok() {
             if !battle_state.waiting_for_player_input {
+                battle_state.waiting_for_player_input = true;
                 player_turn_events.write(PlayerTurnEvent);
             }
         }
-        // Ckeck if its an enemy
+        // Check if its an enemy
         else if enemy_query.get(current_entity).is_ok() {
             enemy_turn_events.write(EnemyTurnEvent {
                 enemy_entity: current_entity,
@@ -103,6 +109,7 @@ pub fn process_turn_system(
 // system that executes an attack
 pub fn execute_attack_system(
     mut commands: Commands,
+    mut battle_state: ResMut<BattleState>,
     mut message_events: MessageWriter<CombatMessageEvent>,
     attacker_query: Query<(
         &CharacterType,
@@ -118,6 +125,7 @@ pub fn execute_attack_system(
         &Defense,
     )>,
     action_query: Query<(Entity, &QueuedAction)>,
+    player_query: Query<Entity, With<Player>>,
 ) {
     // Find entities with queued actions
     for (attacker_entity, action) in action_query.iter() {
@@ -212,14 +220,19 @@ pub fn execute_attack_system(
 
         // remove queued action (already executed)
         commands.entity(attacker_entity).remove::<QueuedAction>();
-
+        
+        // Advance turn
+        battle_state.advance_turn();
+        
+        // If it was player's turn, reset input flag
+        if player_query.get(attacker_entity).is_ok() {
+            battle_state.waiting_for_player_input = false;
+        }
     }
-
 }
 
 pub fn enemy_ai_system(
     mut commands: Commands,
-    battle_state: Res<BattleState>,
     mut enemy_turn_events: MessageReader<EnemyTurnEvent>,
     enemy_query: Query<&SpecialAbilities, With<Enemy>>,
     player_query: Query<Entity, With<Player>>,
@@ -242,14 +255,13 @@ pub fn enemy_ai_system(
         let finte = rng.random_range(0..=abilities.finte_level);
         let wuchtschlag = rng.random_range(0..=abilities.wuchtschlag_level);
         
-        // Add action to enemy
+        // Add action to enemy (will be executed immediately in execute_attack_system)
         commands.entity(enemy_entity).insert(QueuedAction {
             target: Some(player_entity),
             finte_level: finte,
             wuchtschlag_level: wuchtschlag,
         });
     }
-
 }
 
 // system that checks if combat should end
